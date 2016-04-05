@@ -15,7 +15,7 @@ from calendars.calendars import FiscalDate
 
 class FiscalDateTest(unittest.TestCase):
     """
-    Test cases for other properties that are simple enough.
+    Test cases for other properties of calendars.FiscalDate that are simple enough.
     """
 
     def test_date_to_fy(self):
@@ -40,7 +40,7 @@ class FiscalDateTest(unittest.TestCase):
 
 class IsCurrentFiscalYearTest(unittest.TestCase):
     """
-    Test cases for is_current_year properties.
+    Test cases for is_current_year and is_previous_year properties of calendars.FiscalDate.
     """
 
     def test_fiscal_year(self):
@@ -48,6 +48,7 @@ class IsCurrentFiscalYearTest(unittest.TestCase):
         today = FiscalDate(date.today())
         # today should be in current fiscal year
         self.assertEqual(today.is_current_year, True)
+        self.assertEqual(today.is_previous_year, False)
 
         input_date = date.today() + timedelta(days=400)
         self.assertEqual(FiscalDate(input_date).is_current_year, False)
@@ -61,7 +62,7 @@ class IsCurrentFiscalYearTest(unittest.TestCase):
 
         pass
 
-    def test_fiscal_year_2009(self):
+    def test_fiscal_year_2010(self):
         """
         Mock today() as a day during fiscal year 2010 (2009-08-01 to 2010-07-31)
         """
@@ -74,10 +75,74 @@ class IsCurrentFiscalYearTest(unittest.TestCase):
                   ]
 
         for today_2010 in todays:
-            self._fiscal_2009_2010_test_cases(today_2010)
+            self._curr_fiscal_2009_2010_test_cases(today_2010)
+            self._prev_fiscal_2009_2010_test_cases(today_2010)
         pass
 
-    def _fiscal_2009_2010_test_cases(self, today):
+    def _prev_fiscal_2009_2010_test_cases(self, today):
+        with freeze_time(today):
+            # At False boundary
+            input_date = date(2010, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2010, 8, 2)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2009, 7, 30)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2009, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2010, 7, 29)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2010, 7, 30)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            input_date = date(2008, 7, 30)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2008, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # At True boundary
+            input_date = date(2009, 7, 24)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2009, 7, 25)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2008, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2008, 8, 2)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+
+            # Next month lower end
+            input_date = date(2009, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2009, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2009, 7, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+
+            # Next month higher end
+            input_date = date(2010, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2010, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2010, 8, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # Calendar year end
+            input_date = date(2008, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2009, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2010, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # Calendar year start
+            input_date = date(2009, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2010, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2011, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+    def _curr_fiscal_2009_2010_test_cases(self, today):
         # Mock output of today() with today, using freezegun
         with freeze_time(today):
             # At False boundary
@@ -145,9 +210,11 @@ class IsCurrentFiscalYearTest(unittest.TestCase):
                   ]
 
         for today_2006 in todays:
-            self._fiscal_2005_2006_test_cases(today_2006)
+            self._curr_fiscal_2006_test_cases(today_2006)
+            self._prev_fiscal_2006_test_cases(today_2006)
+        pass
 
-    def _fiscal_2005_2006_test_cases(self, today):
+    def _curr_fiscal_2006_test_cases(self, today):
         # Mock output of today() with today, using freezegun
         with freeze_time(today):
             # At False boundary
@@ -186,5 +253,54 @@ class IsCurrentFiscalYearTest(unittest.TestCase):
             self.assertEqual(FiscalDate(input_date).is_current_year, True)
             input_date = date(2007, 1, 1)
             self.assertEqual(FiscalDate(input_date).is_current_year, False)
+
+    def _prev_fiscal_2006_test_cases(self, today):
+        with freeze_time(today):
+            # At False boundary
+            input_date = date(2006, 7, 30)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2004, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            input_date = date(2005, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2006, 7, 29)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # At True boundary
+            input_date = date(2005, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2004, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+
+            # Next month lower end
+            input_date = date(2005, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2005, 7, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+
+            # Next month higher end
+            input_date = date(2006, 7, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2006, 8, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2006, 8, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # Calendar year end
+            input_date = date(2004, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2005, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2006, 12, 31)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+
+            # Calendar year start
+            input_date = date(2005, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, True)
+            input_date = date(2006, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
+            input_date = date(2007, 1, 1)
+            self.assertEqual(FiscalDate(input_date).is_previous_year, False)
 
         pass

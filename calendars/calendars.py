@@ -6,6 +6,7 @@ Utility classes for the following calendars:
 1) Regular solar calendar
 2) Fiscal calendar, based on class constant FISCAL_START.
 3) Retail calendar, based on class constant FISCAL_START.
+4) ISO calendar.
 
 More information about retail calendar (a.k.a. 4-4-5 calendar):
 https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
@@ -42,24 +43,18 @@ class RegularDate(object):
     @property
     def year(self):
         """ Return the calendar year of the given date.
-
-        :return:
         """
         return self._date.year
 
     @property
     def year_start_date(self):
         """ Start date of the calendar year containing this date instance.
-
-        :return:
         """
         return self.year_start
 
     @property
     def year_end_date(self):
         """ End date of the calendar year containing this date instance.
-
-        :return:
         """
         return self.year_end
 
@@ -75,16 +70,12 @@ class RegularDate(object):
     @property
     def is_current_year(self):
         """ Is this instance in the current calendar year, if today is as given?
-
-        :return: True/False
         """
         return True if (self._today.year == self.year) else False
 
     @property
     def is_previous_year(self):
         """ Is the given date in the previous calendar year, if today is as given?
-
-        :return:
         """
         return True if (self._today.year - 1 == self.year) else False
 
@@ -144,16 +135,12 @@ class FiscalDate(object):
     @property
     def year_start_date(self):
         """ Start date of the fiscal year containing this date instance.
-
-        :return:
         """
         return self.year_start
 
     @property
     def year_end_date(self):
         """ End date of the fiscal year containing this date instance.
-
-        :return:
         """
         return self.year_end
 
@@ -169,8 +156,6 @@ class FiscalDate(object):
     @property
     def is_current_year(self):
         """ Is this instance in the current fiscal year, if today is as given?
-
-        :return: True/False
         """
         _, today_year_end = self.get_fiscal_start_end(self._today)
         return True if (today_year_end.year == self.year) else False
@@ -178,8 +163,6 @@ class FiscalDate(object):
     @property
     def is_previous_year(self):
         """ Is the given date in the previous fiscal year, if today is as given?
-
-        :return:
         """
         _, today_year_end = self.get_fiscal_start_end(self._today)
         return True if (today_year_end.year - 1 == self.year) else False

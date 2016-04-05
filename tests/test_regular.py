@@ -11,7 +11,7 @@ from calendars.calendars import RegularDate
 
 class IsCurrentYearTest(unittest.TestCase):
     """
-    Test cases for is_current_year and is_previous_year properties
+    Test cases for is_current_year and is_previous_year properties of calendars.RegularDate.
     """
 
     def test_general(self):
@@ -74,7 +74,7 @@ class IsCurrentYearTest(unittest.TestCase):
 
 class RegularDateTest(unittest.TestCase):
     """
-    Test cases for other properties that are simple enough.
+    Test cases for other properties of calendars.RegularDate that are simple enough.
     """
 
     pass
