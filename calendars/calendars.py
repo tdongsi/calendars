@@ -124,7 +124,7 @@ class FiscalDate(object):
         :param mdate: the given date.
         :return:
         """
-        if mdate.month < FiscalDate.FISCAL_START_MONTH:
+        if mdate < date(mdate.year, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY):
             year_start = date(mdate.year - 1, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY)
             year_end = date(mdate.year, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY) - timedelta(1)
         else:
