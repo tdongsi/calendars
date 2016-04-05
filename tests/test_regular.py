@@ -1,6 +1,6 @@
 """
 Test classes and functions for regular calendar.
-Use pytest module as the main test framework.
+Use unittest module as the main test framework.
 """
 
 from datetime import date
