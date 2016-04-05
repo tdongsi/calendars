@@ -12,8 +12,6 @@ from calendars.calendars import RegularDate
 class IsCurrentYearTest(unittest.TestCase):
     """
     Test cases for is_current_year and is_previous_year properties
-    1. Run with today
-    2. Mock with some day: find current year.
     """
 
     def test_general(self):
@@ -24,22 +22,16 @@ class IsCurrentYearTest(unittest.TestCase):
         self.assertEqual(today.is_previous_year, False)
 
     def test_year2018(self):
-        """Pretend today as mid year 2018.
+        """Pretend today as different dates in year 2018.
         """
-        today = RegularDate(date(2018, 6, 15))
-        self._year2018_test_cases(today)
+        todays = [date(2018, 6, 15),
+                  date(2018, 1, 1),
+                  date(2018, 12, 31)
+                  ]
 
-    def test_year2018_start(self):
-        """Pretend today as start date of year 2018.
-        """
-        today = date(2018, 1, 1)
-        self._year2018_test_cases(today)
-
-    def test_year2018_end(self):
-        """Pretend today as end date of year 2018.
-        """
-        today = date(2018, 12, 31)
-        self._year2018_test_cases(today)
+        for today in todays:
+            self._year2018_test_cases(today)
+        pass
 
     def _year2018_test_cases(self, today):
         """ Test instances in year 2018, depending on what today is.
