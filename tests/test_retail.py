@@ -9,7 +9,7 @@ import unittest
 from calendars.calendars import RetailDate
 
 
-class RetailYearStartDate(unittest.TestCase):
+class RetailYearStartEnd(unittest.TestCase):
     """Test RetailDate.year_start_date and RetailDate.year_end_date properties.
 
     The test cases assume fiscal date is August 1st.
@@ -26,8 +26,8 @@ class RetailYearStartDate(unittest.TestCase):
     dates.sort()
     years = range(2000, 2020)
 
-    # Start 544 year dates from 2000-2020
-    start544_dates = [
+    # Retail year's start dates from 2000-2020
+    retail_start_dates = [
         (1999, 8, 1),
         (2000, 7, 30),
         (2001, 7, 29),
@@ -51,7 +51,32 @@ class RetailYearStartDate(unittest.TestCase):
         (2019, 7, 28)
     ]
 
-    def test_output(self):
+    # Retail year's end dates from 2000-2020
+    retail_end_dates = [
+        (2000, 7, 29),
+        (2001, 7, 28),
+        (2002, 7, 27),
+        (2003, 7, 26),
+        (2004, 7, 31),
+        (2005, 7, 30),
+        (2006, 7, 29),
+        (2007, 7, 28),
+        (2008, 7, 26),
+        (2009, 7, 25),
+        (2010, 7, 31),
+        (2011, 7, 30),
+        (2012, 7, 28),
+        (2013, 7, 27),
+        (2014, 7, 26),
+        (2015, 7, 25),
+        (2016, 7, 30),
+        (2017, 7, 29),
+        (2018, 7, 28),
+        (2019, 7, 27),
+        (2020, 7, 25),
+    ]
+
+    def test_start_date_output(self):
         """ Sanity tests: if the input date is start date of the retail year,
         the year_start_date should be the same.
         """
@@ -69,13 +94,13 @@ class RetailYearStartDate(unittest.TestCase):
         #   start_date+1: start_date
         # }
         for idx in xrange(len(self.years)):
-            start_date = date(*self.start544_dates[idx])
+            start_date = date(*self.retail_start_dates[idx])
 
             if idx != 0:
-                input_to_output[start_date - timedelta(1)] = date(*self.start544_dates[idx-1])
+                input_to_output[start_date - timedelta(1)] = date(*self.retail_start_dates[idx - 1])
 
             input_to_output[start_date] = start_date
-            input_to_output[start_date + timedelta(1)] = date(*self.start544_dates[idx])
+            input_to_output[start_date + timedelta(1)] = date(*self.retail_start_dates[idx])
 
         # Verify the actual output and expected output from dict
         for k, v in input_to_output.iteritems():
@@ -85,18 +110,51 @@ class RetailYearStartDate(unittest.TestCase):
 
         pass
 
+    def test_end_date_output(self):
+
+        # map of input date -> expected output for end date of retail calendar
+        input_to_output = {}
+
+        # Construct the dict:
+        # {
+        #   end_date-1: end_date,
+        #   end_date : end_date,
+        #   end_date+1: next_end_date
+        # }
+        for idx in xrange(len(self.years)):
+            start_date = date(*self.retail_end_dates[idx])
+
+            input_to_output[start_date - timedelta(1)] = date(*self.retail_end_dates[idx])
+            input_to_output[start_date] = start_date
+            if idx != len(self.years)-1:
+                input_to_output[start_date + timedelta(1)] = date(*self.retail_end_dates[idx + 1])
+
+        for k, v in input_to_output.iteritems():
+            actual = RetailDate(k).year_end_date
+            message = "Input: %s, Output: %s, Expected: %s" % (k, actual, v)
+            self.assertEqual(actual, v, message)
+
+        pass
+
     def test_aggr_date_input(self):
         """ Find all retail year's start dates for random input in 2000-2020 period.
         """
 
-        actual_output_date = set([])
+        actual_start_date = set([])
+        actual_end_date = set([])
         for year in self.years:
             for my_date in self.dates:
                 input_date = date(year, my_date[0], my_date[1])
-                start544_date = RetailDate(input_date).year_start_date
-                actual_output_date.add(start544_date)
+                retail_date = RetailDate(input_date)
+                actual_start_date.add(retail_date.year_start_date)
+                actual_end_date.add(retail_date.year_end_date)
 
-        # Verify the start 544 dates
-        expected_start_544 = set([date(mTup[0], mTup[1], mTup[2]) for mTup in self.start544_dates])
-        diff = expected_start_544.symmetric_difference(actual_output_date)
+        # Verify the retail start dates
+        expected_start = set([date(mTup[0], mTup[1], mTup[2]) for mTup in self.retail_start_dates])
+        diff = expected_start.symmetric_difference(actual_start_date)
+        self.assertEqual(len(diff), 0, "Diff: " + str(diff))
+
+        # Verify the retail end dates
+        expected_end = set([date(mTup[0], mTup[1], mTup[2]) for mTup in self.retail_end_dates])
+        diff = expected_end.symmetric_difference(actual_end_date)
         self.assertEqual(len(diff), 0, "Diff: " + str(diff))
