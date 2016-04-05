@@ -20,18 +20,23 @@ FISCAL_START = (8, 1)
 
 
 class RegularDate(object):
+    """
+    This utility class converts a given datetime.date instance into a REGULAR calendar's date instance with
+    different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
+    """
 
     def __init__(self, mdate, today=None):
         """ Initialize a date in regular calendar with the given datetime.date object.
 
         :param mdate: the given datetime.date object.
-        :param today: default is the current date (today), if not provided.
+        :param today: default is the current date (today), if not specified.
         :return:
         """
         self._date = mdate
         if not today:
             self._today = date.today()
         else:
+            # Useful when verifying functionality when running on a particular date.
             self._today = today
 
         self.year_start = date(self._date.year, 1, 1)
