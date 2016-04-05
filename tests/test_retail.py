@@ -6,6 +6,8 @@ Use unittest module as the main test framework.
 from datetime import date, timedelta
 import unittest
 
+from freezegun import freeze_time
+
 from calendars.calendars import RetailDate
 
 
@@ -158,3 +160,96 @@ class RetailYearStartEnd(unittest.TestCase):
         expected_end = set([date(mTup[0], mTup[1], mTup[2]) for mTup in self.retail_end_dates])
         diff = expected_end.symmetric_difference(actual_end_date)
         self.assertEqual(len(diff), 0, "Diff: " + str(diff))
+
+
+class IsCurrentPreviousYearTests(unittest.TestCase):
+    """
+    Test cases for is_current_year and is_previous_year properties of calendars.RetailDate.
+    """
+
+    def test_retail_date(self):
+        # today should be in current retail year
+        my_date = RetailDate(date.today())
+        self.assertEqual(my_date.is_current_year, True)
+        self.assertEqual(my_date.is_previous_year, False)
+
+        input_date = date.today() + timedelta(days=400)
+        self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+        input_date = date.today() - timedelta(days=400)
+        self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+        # date way in the past should not be
+        input_date = date(2012, 12, 21)
+        self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+    def test_retail_year_2010(self):
+        """
+        Mock today() as a day during retail year 2010 (2009-07-26 to 2010-07-31)
+        """
+        todays = [date(2009, 10, 1),   # random earlier half
+                  date(2010, 2, 1),    # random later half
+                  date(2009, 12, 31),   # start of calendar year
+                  date(2010, 1, 1),   # end of calendar year
+                  date(2009, 7, 26),   # start of retail year
+                  date(2010, 7, 31),   # end of retail year
+                  ]
+
+        for today_2010 in todays:
+            self._year544_2009_2010_test_cases(today_2010)
+        pass
+
+    def _year544_2009_2010_test_cases(self, today):
+        with freeze_time(today):
+            # At False boundary
+            input_date = date(2009, 7, 24)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2009, 7, 25)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2010, 8, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2010, 8, 2)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+            # At True boundary
+            input_date = date(2009, 7, 26)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2009, 7, 27)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2010, 7, 29)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2010, 7, 30)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+
+            # Next month lower end
+            input_date = date(2009, 7, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2009, 8, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2009, 7, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+            # Next month higher end
+            input_date = date(2010, 7, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2010, 8, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2010, 8, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+            # Calendar year end
+            input_date = date(2008, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2009, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2010, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+
+            # Calendar year start
+            input_date = date(2009, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2010, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2011, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+

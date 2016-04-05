@@ -274,4 +274,20 @@ class RetailDate(object):
         diff = self.year_end - self.year_start
         return diff.days + 1
 
+    @property
+    def is_current_year(self):
+        """ Is this instance in the current retail year, if today is as given?
+        """
+        _, today_year_end = self.get_retail_start_end(self._today)
+        return True if (today_year_end.year == self.year) else False
+
+    @property
+    def is_previous_year(self):
+        """ Is the given date in the previous retail year, if today is as given?
+        """
+        _, today_year_end = self.get_retail_start_end(self._today)
+        return True if (today_year_end.year - 1 == self.year) else False
+
+    pass
+
     pass
