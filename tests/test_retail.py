@@ -253,3 +253,41 @@ class IsCurrentPreviousYearTests(unittest.TestCase):
             input_date = date(2011, 1, 1)
             self.assertEqual(RetailDate(input_date).is_current_year, False)
 
+    def _curr_retail_2006_tests(self, today):
+        with freeze_time(today):
+            # At False boundary
+            input_date = date(2005, 7, 30)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2006, 7, 30)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            # At True boundary
+            input_date = date(2005, 7, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2006, 7, 29)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            # Next month lower end
+            input_date = date(2005, 8, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2005, 7, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            # Next month higher end
+            input_date = date(2006, 7, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2006, 8, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2006, 8, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            # Calendar year end
+            input_date = date(2004, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2005, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2006, 12, 31)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            # Calendar year start
+            input_date = date(2005, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
+            input_date = date(2006, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, True)
+            input_date = date(2007, 1, 1)
+            self.assertEqual(RetailDate(input_date).is_current_year, False)
