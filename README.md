@@ -7,8 +7,8 @@ Utility classes for the following calendars with tests:
 3. [Retail calendar](https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar), based on class constant FISCAL_START.
 
 Using these utility classes, one can quickly determine, for example, week or month number of a given date with respect
-to the fiscal or retail calendar.
-This module can be helpful since most planning in businesses (small or large) is based on fiscal or retail calendars.
+to a fiscal or retail calendar.
+This module can be helpful since planning in businesses (small or large) is mostly based on fiscal or retail calendars.
 
 ## Additional information
 

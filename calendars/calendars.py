@@ -79,6 +79,19 @@ class RegularDate(object):
         """
         return True if (self._today.year - 1 == self.year) else False
 
+    #################################
+    # String format properties
+    #################################
+
+    @property
+    def year_dates_string(self):
+        """ Fiscal year string with formatted starting and ending dates.
+        E.g.: 2016 (26-JUL-2015 - 30-JUL-2016)
+        """
+        start_string = self.year_start_date.strftime("%d-%b-%Y")
+        end_string = self.year_end_date.strftime("%d-%b-%Y")
+        return "%d (%s - %s)" % (self.year, start_string, end_string)
+
     pass
 
 
@@ -166,6 +179,26 @@ class FiscalDate(object):
         """
         _, today_year_end = self.get_fiscal_start_end(self._today)
         return True if (today_year_end.year - 1 == self.year) else False
+
+    #################################
+    # String format properties
+    #################################
+
+    @property
+    def year_string(self):
+        """ Fiscal year string with both years.
+        E.g.: 2015 - 2016 for fiscal year 2016.
+        """
+        return "%d - %d" % (self.year_start_date.year, self.year_end_date.year)
+
+    @property
+    def year_dates_string(self):
+        """ Fiscal year string with formatted starting and ending dates.
+        E.g.: 2016 (01-AUG-2015 - 31-JUL-2016)
+        """
+        start_string = self.year_start_date.strftime("%d-%b-%Y")
+        end_string = self.year_end_date.strftime("%d-%b-%Y")
+        return "%d (%s - %s)" % (self.year, start_string, end_string)
 
     pass
 
@@ -288,6 +321,24 @@ class RetailDate(object):
         _, today_year_end = self.get_retail_start_end(self._today)
         return True if (today_year_end.year - 1 == self.year) else False
 
-    pass
+    #################################
+    # String format properties
+    #################################
+
+    @property
+    def year_string(self):
+        """ Fiscal year string with both years.
+        E.g.: 2015 - 2016 for fiscal year 2016.
+        """
+        return "%d - %d" % (self.year_start_date.year, self.year_end_date.year)
+
+    @property
+    def year_dates_string(self):
+        """ Fiscal year string with formatted starting and ending dates.
+        E.g.: 2016 (26-JUL-2015 - 30-JUL-2016)
+        """
+        start_string = self.year_start_date.strftime("%d-%b-%Y")
+        end_string = self.year_end_date.strftime("%d-%b-%Y")
+        return "%d (%s - %s)" % (self.year, start_string, end_string)
 
     pass
