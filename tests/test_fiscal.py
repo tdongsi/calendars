@@ -18,6 +18,11 @@ class FiscalDateTest(unittest.TestCase):
     Test cases for other properties of calendars.FiscalDate that are simple enough.
     """
 
+    def test_string_output(self):
+        my_date = FiscalDate(date(2015, 12, 31))
+        self.assertEqual(my_date.year_dates_string, "2016 (01-Aug-2015 - 31-Jul-2016)")
+        self.assertEqual(my_date.year_string, "2015 - 2016")
+
     def test_date_to_fy(self):
 
         expected = (date(2014, 8, 1), date(2015, 7, 31))

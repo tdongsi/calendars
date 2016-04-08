@@ -77,4 +77,9 @@ class RegularDateTest(unittest.TestCase):
     Test cases for other properties of calendars.RegularDate that are simple enough.
     """
 
+    def test_string_output(self):
+        my_date = RegularDate(date(2015, 12, 31))
+        self.assertEqual(my_date.year_dates_string, "2015 (01-Jan-2015 - 31-Dec-2015)")
+        self.assertEqual(my_date.year_string, "2015")
+
     pass

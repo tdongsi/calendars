@@ -11,6 +11,17 @@ from freezegun import freeze_time
 from calendars.calendars import RetailDate
 
 
+class RetailDateTest(unittest.TestCase):
+    """
+    Test cases for other properties of calendars.RetailDate that are simple enough.
+    """
+
+    def test_string_output(self):
+        my_date = RetailDate(date(2015, 12, 31))
+        self.assertEqual(my_date.year_dates_string, "2016 (26-Jul-2015 - 30-Jul-2016)")
+        self.assertEqual(my_date.year_string, "2015 - 2016")
+
+
 class RetailYearStartEnd(unittest.TestCase):
     """Test RetailDate.year_start_date and RetailDate.year_end_date properties.
 
