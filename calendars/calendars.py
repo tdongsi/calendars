@@ -17,7 +17,60 @@ https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
 from datetime import date, timedelta
 
 
-class RegularDate(object):
+class BaseDate(object):
+    """
+    The base calendar class for polymorphism and shared property implementations
+    """
+
+    def __init__(self, mdate):
+        """ Initialize a date in regular calendar with the given datetime.date object.
+
+        :param mdate: the given datetime.date object.
+        :return:
+        """
+        self.__date = mdate
+
+    @property
+    def year(self):
+        return self.__date.year
+
+    @property
+    def year_start_date(self): pass
+
+    @property
+    def year_end_date(self): pass
+
+    @property
+    def is_current_year(self): pass
+
+    @property
+    def is_previous_year(self): pass
+
+    @property
+    def year_num_of_days(self):
+        """ Number of days in the calendar year containing this date instance.
+        """
+        diff = self.year_end_date - self.year_start_date
+        return diff.days + 1
+
+    @property
+    def year_string(self):
+        """ Year string with both years.
+        E.g.: 2015 - 2016 for fiscal year 2016.
+        """
+        return "%d - %d" % (self.year_start_date.year, self.year_end_date.year)
+
+    @property
+    def year_dates_string(self):
+        """ Year string with formatted starting and ending dates.
+        E.g.: 2016 (26-JUL-2015 - 30-JUL-2016)
+        """
+        start_string = self.year_start_date.strftime("%d-%b-%Y")
+        end_string = self.year_end_date.strftime("%d-%b-%Y")
+        return "%d (%s - %s)" % (self.year, start_string, end_string)
+
+
+class RegularDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a REGULAR calendar's date instance with
     different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
@@ -95,7 +148,7 @@ class RegularDate(object):
     pass
 
 
-class FiscalDate(object):
+class FiscalDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a FISCAL calendar's date instance with
     different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
@@ -203,7 +256,7 @@ class FiscalDate(object):
     pass
 
 
-class RetailDate(object):
+class RetailDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a RETAIL calendar's date instance with
     different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
