@@ -17,6 +17,11 @@ https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
 from datetime import date, timedelta
 
 
+class CalendarImplError(Exception):
+    """ Raise this error when a property in the base class, e.g. BaseDate, is not overridden or implemented.
+    """
+    pass
+
 class BaseDate(object):
     """
     The base calendar class for polymorphism and shared property implementations
@@ -35,16 +40,24 @@ class BaseDate(object):
         return self.__date.year
 
     @property
-    def year_start_date(self): pass
+    def year_start_date(self):
+        raise CalendarImplError("Not implemented")
+        pass
 
     @property
-    def year_end_date(self): pass
+    def year_end_date(self):
+        raise CalendarImplError("Not implemented")
+        pass
 
     @property
-    def is_current_year(self): pass
+    def is_current_year(self):
+        raise CalendarImplError("Not implemented")
+        pass
 
     @property
-    def is_previous_year(self): pass
+    def is_previous_year(self):
+        raise CalendarImplError("Not implemented")
+        pass
 
     @property
     def year_num_of_days(self):
