@@ -112,15 +112,6 @@ class RegularDate(BaseDate):
         return self.year_end
 
     @property
-    def year_num_of_days(self):
-        """ Number of days in the calendar year containing this date instance.
-
-        :return: Number of days in the calendar year containing this date instance.
-        """
-        diff = self.year_end - self.year_start
-        return diff.days + 1
-
-    @property
     def is_current_year(self):
         """ Is this instance in the current calendar year, if today is as given?
         """
@@ -209,15 +200,6 @@ class FiscalDate(BaseDate):
         """ End date of the fiscal year containing this date instance.
         """
         return self.year_end
-
-    @property
-    def year_num_of_days(self):
-        """ Number of days in the fiscal year containing this date instance.
-
-        :return: Number of days in the fiscal year containing this date instance.
-        """
-        diff = self.year_end - self.year_start
-        return diff.days + 1
 
     @property
     def is_current_year(self):
@@ -349,16 +331,6 @@ class RetailDate(BaseDate):
         """ End date of the retail year containing this date instance.
         """
         return self.year_end
-
-    @property
-    def year_num_of_days(self):
-        """ Number of days in the retail year containing this date instance.
-        For retail year, this number should be either 364 (52 weeks) or 371 (53 weeks).
-
-        :return: Number of days in the retail year containing this date instance.
-        """
-        diff = self.year_end - self.year_start
-        return diff.days + 1
 
     @property
     def is_current_year(self):
