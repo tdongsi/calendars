@@ -1,6 +1,11 @@
 """
 Test classes and functions for fiscal calendar.
 Use unittest module as the main test framework.
+
+All the test cases in this module assume default values of class parameters:
+1) fiscal year starts on Aug 1st.
+
+It is hard to unit-test with variable class parameters.
 """
 
 from datetime import date, timedelta

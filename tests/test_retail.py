@@ -1,6 +1,12 @@
 """
 Test classes and functions for retail calendar.
 Use unittest module as the main test framework.
+
+All the test cases in this module assume default values of class parameters:
+1) fiscal year starts on Aug 1st.
+2) Retail calendar's end date is the last Saturday of July.
+
+It is hard to unit-test with general, variable class parameters.
 """
 
 from datetime import date, timedelta
@@ -39,6 +45,69 @@ class RetailQuarterStartEnd(unittest.TestCase):
         self._verify_retail_quarter(date(2003, 11, 2), date(2003, 10, 26), date(2004, 1, 24))
         self._verify_retail_quarter(date(2004, 2, 1), date(2004, 1, 25), date(2004, 4, 24))
         self._verify_retail_quarter(date(2004, 5, 2), date(2004, 4, 25), date(2004, 7, 31))
+
+
+class QuarterNumberTest(unittest.TestCase):
+    """
+    Verify RetailDate.quarter property.
+    """
+
+    def _quarter_number(self, dategiven):
+        """
+        An internal function to minimize changes in tests.
+        """
+        return RetailDate(dategiven).quarter
+
+    def test_quarter_number_2004(self):
+        # 2004: start date and end date of Q1-Q4
+        self.assertEqual(1, self._quarter_number(date(2003, 7, 27)))
+        self.assertEqual(1, self._quarter_number(date(2003, 10, 25)))
+
+        self.assertEqual(2, self._quarter_number(date(2003, 10, 26)))
+        self.assertEqual(2, self._quarter_number(date(2003, 11, 1)))
+        self.assertEqual(2, self._quarter_number(date(2003, 1, 24)))
+
+        self.assertEqual(3, self._quarter_number(date(2004, 1, 25)))
+        self.assertEqual(3, self._quarter_number(date(2004, 2, 1)))
+        self.assertEqual(3, self._quarter_number(date(2004, 4, 24)))
+
+        self.assertEqual(4, self._quarter_number(date(2004, 4, 25)))
+        self.assertEqual(4, self._quarter_number(date(2004, 5, 1)))
+        self.assertEqual(4, self._quarter_number(date(2004, 7, 31)))
+        pass
+
+    def test_quarter_number_2010(self):
+        # 2010: start date and end date of Q1-Q4
+        self.assertEqual(1, self._quarter_number(date(2009, 7, 26)))
+        self.assertEqual(1, self._quarter_number(date(2009, 10, 24)))
+
+        self.assertEqual(2, self._quarter_number(date(2009, 10, 25)))
+        self.assertEqual(2, self._quarter_number(date(2009, 11, 1)))
+        self.assertEqual(2, self._quarter_number(date(2010, 1, 23)))
+
+        self.assertEqual(3, self._quarter_number(date(2010, 1, 24)))
+        self.assertEqual(3, self._quarter_number(date(2010, 1, 31)))
+        self.assertEqual(3, self._quarter_number(date(2010, 4, 24)))
+
+        self.assertEqual(4, self._quarter_number(date(2010, 4, 25)))
+        self.assertEqual(4, self._quarter_number(date(2010, 5, 2)))
+        self.assertEqual(4, self._quarter_number(date(2010, 7, 31)))
+        pass
+
+    def test_quarter_number_2014(self):
+        # 2014: start date and end date of Q1-Q4
+        self.assertEqual(1, self._quarter_number(date(2013, 7, 28)))
+        self.assertEqual(1, self._quarter_number(date(2013, 10, 26)))
+
+        self.assertEqual(2, self._quarter_number(date(2013, 10, 27)))
+        self.assertEqual(2, self._quarter_number(date(2014, 1, 25)))
+
+        self.assertEqual(3, self._quarter_number(date(2014, 1, 26)))
+        self.assertEqual(3, self._quarter_number(date(2014, 4, 26)))
+
+        self.assertEqual(4, self._quarter_number(date(2014, 4, 27)))
+        self.assertEqual(4, self._quarter_number(date(2014, 7, 26)))
+        pass
 
 
 class RetailYearStartEnd(unittest.TestCase):

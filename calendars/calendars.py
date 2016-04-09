@@ -423,7 +423,8 @@ class RetailDate(BaseDate):
         # Create an instance copy
         self._weeks_in_month = self.WEEKS_IN_MONTH[:]
         if self.is_53_week:
-            self._weeks_in_month[self.LEAP_MONTH-1] = 5
+            # Add additional week to the leap month
+            self._weeks_in_month[self.LEAP_MONTH-1] += 1
 
         self.weeks_in_quarter = [sum(self._weeks_in_month[0:3]),
                             sum(self._weeks_in_month[3:6]),
@@ -515,8 +516,8 @@ class RetailDate(BaseDate):
         Quarter is based on month (every three months), which is one-based in self._date.
         :return: Quarter number for the input date.
         """
-        num_days = self._date - self.year_start_date
-        week_num = num_days / 7 + 1
+        num_days = (self._date - self.year_start_date).days
+        week_num = num_days / 7
 
         week_cumsum = [0]
         week_cumsum.extend(cumsum(self.weeks_in_quarter))
@@ -524,7 +525,7 @@ class RetailDate(BaseDate):
         for count in xrange(1, len(week_cumsum)):
             if week_cumsum[count-1] <= week_num < week_cumsum[count]:
                 break
-        return count + 1
+        return count
 
     @property
     def quarter_start_date(self):
@@ -541,7 +542,7 @@ class RetailDate(BaseDate):
         """ Find the ending date of the quarter that contains the given date.
         """
         # Find the running total of weeks per quarter
-        week_cumsum = cumsum(self.weeks_in_quarter)
+        week_cumsum = list(cumsum(self.weeks_in_quarter))
         end_date = self.year_start_date + timedelta(week_cumsum[self.quarter-1]*7-1)
         return end_date
 
