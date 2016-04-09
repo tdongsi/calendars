@@ -1,7 +1,42 @@
-from datetime import date
+from datetime import date, timedelta
 import unittest
 
 from calendars.calendars import IsoDate
+
+
+class IsoYearStartEnd(unittest.TestCase):
+    """Test IsoDate.year_start_date and IsoDate.year_end_date properties.
+    """
+
+    def test_start_date_output(self):
+        """ Sanity tests: if the input date is start date of the Iso year,
+        the year_start_date should be the same.
+        """
+
+        # Sanity test
+        iso_date = IsoDate(date(2018, 1, 1))
+        self.assertEqual(iso_date.year_start_date, date(2018, 1, 1))
+        self.assertEqual(iso_date.year_end_date, date(2018, 12, 30))
+        iso_date = IsoDate(date(2018, 12, 31))
+        self.assertEqual(iso_date.year_start_date, date(2018, 12, 31))
+        self.assertEqual(iso_date.year_end_date, date(2019, 12, 29))
+
+        # All tests using datetime's isocalendar
+        for year in xrange(1990, 2020):
+            my_date = date(year, 6, 15)
+            iso_date = IsoDate(my_date)
+
+            year_start = iso_date.year_start_date.isocalendar()
+            self.assertEqual(year_start[0], year)
+            self.assertEqual(year_start[1], 1)
+            self.assertEqual(year_start[2], 1)
+
+            year_end = iso_date.year_end_date.isocalendar()
+            self.assertEqual(year_end[0], year)
+            self.assertTrue(year_end[1] >= 52, year)
+            self.assertEqual(year_end[2], 7)
+
+        pass
 
 
 class IsCurrentYearTest(unittest.TestCase):

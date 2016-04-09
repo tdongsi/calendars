@@ -547,13 +547,15 @@ class IsoDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a ISO calendar's date instance with
     different pre-computed attributes of interest such as quarter starting date for that date, etc.
+
+    http://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm
+    https://en.wikipedia.org/wiki/ISO_week_date
     """
 
-    # quarter's starting and ending dates
-    _QUARTER_NUM_TO_DATE = { 1: ((1, 1), (3, 31)),
-                             2: ((4, 1), (6, 30)),
-                             3: ((7, 1), (9, 30)),
-                             4: ((10, 1), (12, 31))}
+    # Weeks in each month: Grouping of 13 weeks in a quarter can be 5-4-4 or 4-4-5.
+    WEEKS_IN_MONTH = [5, 4, 4]*4
+    # In the case of 53-week, the extra week is put in the last month. In this case, last quarter is (5, 4, 5)
+    LEAP_MONTH = 12
 
     def __init__(self, mdate, today=None):
         """ Initialize a date in regular calendar with the given datetime.date object.
@@ -573,34 +575,33 @@ class IsoDate(BaseDate):
         self.year_start = self.iso_year_start(self._date)
         self.year_end = self.iso_year_end(self._date)
 
-        self.quarter_num_to_Date = { 1: (self.year_start, date(self._year, 3, 31)),
+        self.quarter_num_to_date = { 1: (self.year_start, date(self._year, 3, 31)),
                                      2: (date(self._year, 4, 1), date(self._year, 6, 30)),
                                      3: (date(self._year, 7, 1), date(self._year, 9, 30)),
-                                     4: (date(self.year, 10, 1), self.year_end),
+                                     4: (date(self._year, 10, 1), self.year_end),
                                      }
 
     def iso_year_start(self, mdate):
         """ Find starting date of ISO year that contains the given date.
 
         The first week of the ISO calendar year is the earliest week that contains at least 4 days of January.
+        It follows that 4th January is the latest that week 1 can start.
         :param mdate: the input date
         :return: starting date of ISO year.
         """
-        gre_year_start = date(mdate.year, 1, 1)
-        iso_year = mdate.isocalendar()[0]
-        if iso_year == gre_year_start.isocalendar()[0]:
-            year_start = gre_year_start - timedelta(gre_year_start.weekday())
-        else:
-            year_start = gre_year_start + timedelta(7 - gre_year_start.weekday())
+        forth_jan = date(mdate.isocalendar()[0], 1, 4)
+        year_start = forth_jan + timedelta(days=1-forth_jan.isocalendar()[2])
         return year_start
 
     def iso_year_end(self, mdate):
-        gre_year_start = date(mdate.year+1, 1, 1)
-        iso_year = mdate.isocalendar()[0]
-        if iso_year == gre_year_start.isocalendar()[0]:
-            year_end = gre_year_start + timedelta(6-gre_year_start.weekday())
-        else:
-            year_end = gre_year_start - timedelta(gre_year_start.weekday()+1)
+        """ Find ending date of ISO year that contains the given date.
+
+        4th January is the latest that week 1 can start.
+        :param mdate:
+        :return:
+        """
+        forth_jan = date(mdate.isocalendar()[0]+1, 1, 4)
+        year_end = forth_jan - timedelta(days=forth_jan.isocalendar()[2])
         return year_end
 
     @property
@@ -640,23 +641,21 @@ class IsoDate(BaseDate):
         Quarter is based on month (every three months), which is one-based in self._date.
         :return: Quarter number for the input date.
         """
-        zero_based_month = self._date.month - 1
-        quarter_num = zero_based_month / 3 + 1
-        return quarter_num
+        for key in self.quarter_num_to_date:
+            if self.quarter_num_to_date[key][0] <= self._date <= self.quarter_num_to_date[key][1]:
+                return key
 
     @property
     def quarter_start_date(self):
         """ Find the starting date of the quarter that contains the given date.
         """
-        start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
-        return date(self.year, *start_date)
+        return self.quarter_num_to_date[self.quarter][0]
 
     @property
     def quarter_end_date(self):
         """ Find the ending date of the quarter that contains the given date.
         """
-        end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
-        return date(self.year, *end_date)
+        return self.quarter_num_to_date[self.quarter][1]
 
     #################################
     # String format properties
