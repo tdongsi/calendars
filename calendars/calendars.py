@@ -569,14 +569,45 @@ class IsoDate(BaseDate):
             # Useful when verifying functionality when running on a particular date.
             self._today = today
 
-        self.year_start = date(self._date.year, 1, 1)
-        self.year_end = date(self._date.year, 12, 31)
+        self._year = self._date.isocalendar()[0]
+        self.year_start = self.iso_year_start(self._date)
+        self.year_end = self.iso_year_end(self._date)
+
+        self.quarter_num_to_Date = { 1: (self.year_start, date(self._year, 3, 31)),
+                                     2: (date(self._year, 4, 1), date(self._year, 6, 30)),
+                                     3: (date(self._year, 7, 1), date(self._year, 9, 30)),
+                                     4: (date(self.year, 10, 1), self.year_end),
+                                     }
+
+    def iso_year_start(self, mdate):
+        """ Find starting date of ISO year that contains the given date.
+
+        The first week of the ISO calendar year is the earliest week that contains at least 4 days of January.
+        :param mdate: the input date
+        :return: starting date of ISO year.
+        """
+        gre_year_start = date(mdate.year, 1, 1)
+        iso_year = mdate.isocalendar()[0]
+        if iso_year == gre_year_start.isocalendar()[0]:
+            year_start = gre_year_start - timedelta(gre_year_start.weekday())
+        else:
+            year_start = gre_year_start + timedelta(7 - gre_year_start.weekday())
+        return year_start
+
+    def iso_year_end(self, mdate):
+        gre_year_start = date(mdate.year+1, 1, 1)
+        iso_year = mdate.isocalendar()[0]
+        if iso_year == gre_year_start.isocalendar()[0]:
+            year_end = gre_year_start + timedelta(6-gre_year_start.weekday())
+        else:
+            year_end = gre_year_start - timedelta(gre_year_start.weekday()+1)
+        return year_end
 
     @property
     def year(self):
         """ Return the calendar year of the given date.
         """
-        return self._date.year
+        return self._year
 
     @property
     def year_start_date(self):
@@ -594,13 +625,13 @@ class IsoDate(BaseDate):
     def is_current_year(self):
         """ Is this instance in the current calendar year, if today is as given?
         """
-        return True if (self._today.year == self.year) else False
+        return True if (self._today.isocalendar()[0] == self.year) else False
 
     @property
     def is_previous_year(self):
         """ Is the given date in the previous calendar year, if today is as given?
         """
-        return True if (self._today.year - 1 == self.year) else False
+        return True if (self._today.isocalendar()[0] - 1 == self.year) else False
 
     @property
     def quarter(self):

@@ -21,7 +21,7 @@ class IsCurrentYearTest(unittest.TestCase):
         """
         todays = [date(2018, 6, 15),
                   date(2018, 1, 1),
-                  date(2018, 12, 31)
+                  date(2018, 12, 30)
                   ]
 
         for today in todays:
@@ -35,13 +35,17 @@ class IsCurrentYearTest(unittest.TestCase):
         input_date = IsoDate(date(2018, 1, 1), today)
         self._verify_current_calendar_year(input_date, True, False)
 
-        input_date = IsoDate(date(2018, 12, 31), today)
+        input_date = IsoDate(date(2018, 12, 30), today)
         self._verify_current_calendar_year(input_date, True, False)
+        input_date = IsoDate(date(2018, 12, 31), today)
+        self._verify_current_calendar_year(input_date, False, False)
 
         input_date = IsoDate(date(2018, 6, 15), today)
         self._verify_current_calendar_year(input_date, True, False)
 
         input_date = IsoDate(date(2017, 1, 1), today)
+        self._verify_current_calendar_year(input_date, False, False)
+        input_date = IsoDate(date(2017, 1, 2), today)
         self._verify_current_calendar_year(input_date, False, True)
 
         input_date = IsoDate(date(2017, 12, 31), today)
@@ -80,7 +84,7 @@ class IsoDateTest(unittest.TestCase):
 
     def test_string_output(self):
         my_date = IsoDate(date(2015, 12, 31))
-        self.assertEqual(my_date.year_dates_string, "2015 (01-Jan-2015 - 31-Dec-2015)")
+        self.assertEqual(my_date.year_dates_string, "2015 (29-Dec-2014 - 03-Jan-2016)")
         self.assertEqual(my_date.year_string, "2015")
 
     pass
