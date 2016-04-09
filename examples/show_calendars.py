@@ -8,6 +8,7 @@ def main():
     cal = cc.RegularDate(my_date)
     fy = cc.FiscalDate(my_date)
     r544 = cc.RetailDate(my_date)
+    # TODO: ISO and lunar calendar
 
     fiscal_attr = [fy.year,
                    fy.year_string,
