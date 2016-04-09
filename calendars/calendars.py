@@ -75,6 +75,16 @@ class BaseDate(object):
         raise CalendarImplError("Not implemented")
         pass
 
+    @property
+    def is_current_quarter(self):
+        raise CalendarImplError("Not implemented")
+        pass
+
+    @property
+    def is_previous_quarter(self):
+        raise CalendarImplError("Not implemented")
+        pass
+
     #################################
     # Shared implementation
     #################################
@@ -136,6 +146,12 @@ class RegularDate(BaseDate):
     different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
     """
 
+    # quarter's starting and ending dates
+    _QUARTER_NUM_TO_DATE = { 1: ((1, 1), (3, 31)),
+                             2: ((4, 1), (6, 30)),
+                             3: ((7, 1), (9, 30)),
+                             4: ((10, 1), (12, 31))}
+
     def __init__(self, mdate, today=None):
         """ Initialize a date in regular calendar with the given datetime.date object.
 
@@ -182,6 +198,31 @@ class RegularDate(BaseDate):
         """ Is the given date in the previous calendar year, if today is as given?
         """
         return True if (self._today.year - 1 == self.year) else False
+
+    @property
+    def quarter(self):
+        """ Find the quarter number for the given date.
+
+        Quarter is based on month (every three months), which is one-based in self._date.
+        :return: Quarter number for the input date.
+        """
+        zero_based_month = self._date.month - 1
+        quarter_num = zero_based_month / 3 + 1
+        return quarter_num
+
+    @property
+    def quarter_start_date(self):
+        """ Find the starting date of the quarter that contains the given date.
+        """
+        start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
+        return date(self.year, *start_date)
+
+    @property
+    def quarter_end_date(self):
+        """ Find the ending date of the quarter that contains the given date.
+        """
+        end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
+        return date(self.year, *end_date)
 
     #################################
     # String format properties
