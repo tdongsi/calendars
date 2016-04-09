@@ -575,11 +575,17 @@ class IsoDate(BaseDate):
         self.year_start = self.iso_year_start(self._date)
         self.year_end = self.iso_year_end(self._date)
 
-        self.quarter_num_to_date = { 1: (self.year_start, date(self._year, 3, 31)),
-                                     2: (date(self._year, 4, 1), date(self._year, 6, 30)),
-                                     3: (date(self._year, 7, 1), date(self._year, 9, 30)),
-                                     4: (date(self._year, 10, 1), self.year_end),
-                                     }
+        self.is_53_week = True if self.year_num_of_days == 53 * 7 else False
+        # Create an instance copy
+        self._weeks_in_month = self.WEEKS_IN_MONTH[:]
+        if self.is_53_week:
+            # Add additional week to the leap month
+            self._weeks_in_month[self.LEAP_MONTH-1] += 1
+
+        self.weeks_in_quarter = [sum(self._weeks_in_month[0:3]),
+                            sum(self._weeks_in_month[3:6]),
+                            sum(self._weeks_in_month[6:9]),
+                            sum(self._weeks_in_month[9:12])]
 
     def iso_year_start(self, mdate):
         """ Find starting date of ISO year that contains the given date.
@@ -636,26 +642,40 @@ class IsoDate(BaseDate):
 
     @property
     def quarter(self):
-        """ Find the quarter number for the given date.
+        """ Find the retail quarter number for the given date.
 
         Quarter is based on month (every three months), which is one-based in self._date.
         :return: Quarter number for the input date.
         """
-        for key in self.quarter_num_to_date:
-            if self.quarter_num_to_date[key][0] <= self._date <= self.quarter_num_to_date[key][1]:
-                return key
+        num_days = (self._date - self.year_start_date).days
+        week_num = num_days / 7
+
+        week_cumsum = [0]
+        week_cumsum.extend(cumsum(self.weeks_in_quarter))
+        count = 0
+        for count in xrange(1, len(week_cumsum)):
+            if week_cumsum[count-1] <= week_num < week_cumsum[count]:
+                break
+        return count
 
     @property
     def quarter_start_date(self):
         """ Find the starting date of the quarter that contains the given date.
         """
-        return self.quarter_num_to_date[self.quarter][0]
+        # Find the running total of weeks per quarter
+        week_cumsum = [0]
+        week_cumsum.extend(cumsum(self.weeks_in_quarter))
+        start_date = self.year_start_date + timedelta(week_cumsum[self.quarter-1]*7)
+        return start_date
 
     @property
     def quarter_end_date(self):
         """ Find the ending date of the quarter that contains the given date.
         """
-        return self.quarter_num_to_date[self.quarter][1]
+        # Find the running total of weeks per quarter
+        week_cumsum = list(cumsum(self.weeks_in_quarter))
+        end_date = self.year_start_date + timedelta(week_cumsum[self.quarter-1]*7-1)
+        return end_date
 
     #################################
     # String format properties
@@ -665,7 +685,7 @@ class IsoDate(BaseDate):
     def year_string(self):
         """ String of the current year.
 
-        For regular calendar, override base implementation to print one year.
+        For ISO calendar, just like regular calendar, override base implementation to print one year.
         """
         return str(self.year)
 

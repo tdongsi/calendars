@@ -114,8 +114,21 @@ class IsoDateTest(unittest.TestCase):
     def test_quarter(self):
         my_date = IsoDate(date(2016, 4, 8))
         self.assertEqual(my_date.quarter, 2)
-        self.assertEqual(my_date.quarter_start_date, date(2016, 4, 1))
-        self.assertEqual(my_date.quarter_end_date, date(2016, 6, 30))
+        self.assertEqual(my_date.quarter_start_date, date(2016, 4, 4))
+        self.assertEqual(my_date.quarter_end_date, date(2016, 7, 3))
+
+    def test_quarter_start_end(self):
+        for year in xrange(1990, 2020):
+            my_date = IsoDate(date(year, 2, 15))
+            self.assertEqual(my_date.quarter, 1)
+            self.assertEqual(my_date.quarter_start_date.isocalendar(), (year, 1, 1))
+            self.assertEqual(my_date.quarter_end_date.isocalendar(), (year, 13, 7))
+
+            my_date = IsoDate(date(year, 5, 15))
+            self.assertEqual(my_date.quarter, 2)
+            self.assertEqual(my_date.quarter_start_date.isocalendar(), (year, 14, 1))
+            self.assertEqual(my_date.quarter_end_date.isocalendar(), (year, 26, 7))
+        pass
 
     def test_string_output(self):
         my_date = IsoDate(date(2015, 12, 31))
