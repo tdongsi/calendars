@@ -248,6 +248,13 @@ class FiscalDate(BaseDate):
     FISCAL_START_MONTH = 8
     FISCAL_START_DAY = 1
 
+    # quarter's starting and ending dates
+    # It is easier and less error-prone to edit this constant than write code
+    _QUARTER_NUM_TO_DATE = { 1: ((8, 1), (10, 31)),
+                             2: ((11, 1), (1, 31)),
+                             3: ((2, 1), (4, 30)),
+                             4: ((5, 1), (7, 31))}
+
     def __init__(self, mdate, today=None):
         """ Initialize a date in fiscal calendar with the given datetime.date object.
 
@@ -314,6 +321,44 @@ class FiscalDate(BaseDate):
         """
         _, today_year_end = self.get_fiscal_start_end(self._today)
         return True if (today_year_end.year - 1 == self.year) else False
+
+    @property
+    def quarter(self):
+        """ Find the fiscal quarter number for the given date.
+
+        Quarter is based on month (every three months), which is one-based in self._date.
+        :return: Quarter number for the input date.
+        """
+        if self._date.year == self.year - 1:
+            zero_based_month = self._date.month - self.FISCAL_START_MONTH
+            quarter_num = zero_based_month / 3 + 1
+            return quarter_num
+        else:
+            zero_based_month = self._date.month + 12 - self.FISCAL_START_MONTH
+            quarter_num = zero_based_month / 3 + 1
+            return quarter_num
+
+    @property
+    def quarter_start_date(self):
+        """ Find the starting date of the quarter that contains the given date.
+        """
+        # Make sure the starting date of the first quarter is as defined.
+        assert self._QUARTER_NUM_TO_DATE[1][0] == (self.FISCAL_START_MONTH, self.FISCAL_START_DAY)
+
+        start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
+        start_year = self.year if self.quarter > 2 else self.year-1
+        return date(start_year, *start_date)
+
+    @property
+    def quarter_end_date(self):
+        """ Find the ending date of the quarter that contains the given date.
+        """
+        # Make sure the starting date of the first quarter is as defined.
+        assert self._QUARTER_NUM_TO_DATE[1][0] == (self.FISCAL_START_MONTH, self.FISCAL_START_DAY)
+
+        end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
+        end_year = self.year if self.quarter > 1 else self.year-1
+        return date(end_year, *end_date)
 
     #################################
     # String format properties

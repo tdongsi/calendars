@@ -18,6 +18,35 @@ class FiscalDateTest(unittest.TestCase):
     Test cases for other properties of calendars.FiscalDate that are simple enough.
     """
 
+    def test_quarter_start_end(self):
+        input_date = date(2015, 9, 2)
+        expected = (date(2015, 8, 1), date(2015, 10, 31))
+        self.assertEqual(FiscalDate(input_date).quarter_start_date, expected[0])
+        self.assertEqual(FiscalDate(input_date).quarter_end_date, expected[1])
+
+        input_date = date(2015, 1, 1)
+        expected = (date(2014, 11, 1), date(2015, 1, 31))
+        self.assertEqual(FiscalDate(input_date).quarter_start_date, expected[0])
+        self.assertEqual(FiscalDate(input_date).quarter_end_date, expected[1])
+        pass
+
+    def test_quarter_number(self):
+
+        self.assertEqual(FiscalDate(date(2015, 8, 1)).quarter, 1)
+        self.assertEqual(FiscalDate(date(2015, 10, 30)).quarter, 1)
+
+        self.assertEqual(FiscalDate(date(2015, 11, 1)).quarter, 2)
+        self.assertEqual(FiscalDate(date(2015, 12, 31)).quarter, 2)
+        self.assertEqual(FiscalDate(date(2016, 1, 1)).quarter, 2)
+        self.assertEqual(FiscalDate(date(2016, 1, 31)).quarter, 2)
+
+        self.assertEqual(FiscalDate(date(2016, 2, 1)).quarter, 3)
+        self.assertEqual(FiscalDate(date(2016, 4, 30)).quarter, 3)
+
+        self.assertEqual(FiscalDate(date(2016, 5, 1)).quarter, 4)
+        self.assertEqual(FiscalDate(date(2016, 7, 31)).quarter, 4)
+        pass
+
     def test_string_output(self):
         my_date = FiscalDate(date(2015, 12, 31))
         self.assertEqual(my_date.year_dates_string, "2016 (01-Aug-2015 - 31-Jul-2016)")
