@@ -87,16 +87,6 @@ class BaseDate(object):
         raise CalendarImplError("Not implemented")
         pass
 
-    @property
-    def is_current_quarter(self):
-        raise CalendarImplError("Not implemented")
-        pass
-
-    @property
-    def is_previous_quarter(self):
-        raise CalendarImplError("Not implemented")
-        pass
-
     #################################
     # Shared implementation
     #################################
