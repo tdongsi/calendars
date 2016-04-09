@@ -145,7 +145,7 @@ class BaseDate(object):
 class RegularDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a REGULAR calendar's date instance with
-    different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
+    different pre-computed attributes of interest such as quarter starting date for that date, etc.
     """
 
     # quarter's starting and ending dates
@@ -244,7 +244,7 @@ class RegularDate(BaseDate):
 class FiscalDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a FISCAL calendar's date instance with
-    different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
+    different pre-computed attributes of interest such as quarter starting date for that date, etc.
 
     To use for another fiscal calendar (e.g., different fiscal month), it is user's responsibility to update all
     internal class constants properly before creating FiscalDate instances:
@@ -379,7 +379,7 @@ class FiscalDate(BaseDate):
 class RetailDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a RETAIL calendar's date instance with
-    different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
+    different pre-computed attributes of interest such as quarter starting date for that date, etc.
 
     More on Retail calendar: https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
     """
@@ -539,5 +539,104 @@ class RetailDate(BaseDate):
     #################################
     # String format properties
     #################################
+
+    pass
+
+
+class IsoDate(BaseDate):
+    """
+    This utility class converts a given datetime.date instance into a ISO calendar's date instance with
+    different pre-computed attributes of interest such as quarter starting date for that date, etc.
+    """
+
+    # quarter's starting and ending dates
+    _QUARTER_NUM_TO_DATE = { 1: ((1, 1), (3, 31)),
+                             2: ((4, 1), (6, 30)),
+                             3: ((7, 1), (9, 30)),
+                             4: ((10, 1), (12, 31))}
+
+    def __init__(self, mdate, today=None):
+        """ Initialize a date in regular calendar with the given datetime.date object.
+
+        :param mdate: the given datetime.date object.
+        :param today: default is the current date (today), if not specified.
+        :return:
+        """
+        self._date = mdate
+        if not today:
+            self._today = date.today()
+        else:
+            # Useful when verifying functionality when running on a particular date.
+            self._today = today
+
+        self.year_start = date(self._date.year, 1, 1)
+        self.year_end = date(self._date.year, 12, 31)
+
+    @property
+    def year(self):
+        """ Return the calendar year of the given date.
+        """
+        return self._date.year
+
+    @property
+    def year_start_date(self):
+        """ Start date of the calendar year containing this date instance.
+        """
+        return self.year_start
+
+    @property
+    def year_end_date(self):
+        """ End date of the calendar year containing this date instance.
+        """
+        return self.year_end
+
+    @property
+    def is_current_year(self):
+        """ Is this instance in the current calendar year, if today is as given?
+        """
+        return True if (self._today.year == self.year) else False
+
+    @property
+    def is_previous_year(self):
+        """ Is the given date in the previous calendar year, if today is as given?
+        """
+        return True if (self._today.year - 1 == self.year) else False
+
+    @property
+    def quarter(self):
+        """ Find the quarter number for the given date.
+
+        Quarter is based on month (every three months), which is one-based in self._date.
+        :return: Quarter number for the input date.
+        """
+        zero_based_month = self._date.month - 1
+        quarter_num = zero_based_month / 3 + 1
+        return quarter_num
+
+    @property
+    def quarter_start_date(self):
+        """ Find the starting date of the quarter that contains the given date.
+        """
+        start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
+        return date(self.year, *start_date)
+
+    @property
+    def quarter_end_date(self):
+        """ Find the ending date of the quarter that contains the given date.
+        """
+        end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
+        return date(self.year, *end_date)
+
+    #################################
+    # String format properties
+    #################################
+
+    @property
+    def year_string(self):
+        """ String of the current year.
+
+        For regular calendar, override base implementation to print one year.
+        """
+        return str(self.year)
 
     pass
