@@ -22,6 +22,7 @@ class CalendarImplError(Exception):
     """
     pass
 
+
 class BaseDate(object):
     """
     The base calendar class for polymorphism and shared property implementations
@@ -60,11 +61,41 @@ class BaseDate(object):
         pass
 
     @property
+    def quarter(self):
+        raise CalendarImplError("Not implemented")
+        pass
+
+    @property
+    def quarter_start_date(self):
+        raise CalendarImplError("Not implemented")
+        pass
+
+    @property
+    def quarter_end_date(self):
+        raise CalendarImplError("Not implemented")
+        pass
+
+    #################################
+    # Shared implementation
+    #################################
+
+    @property
     def year_num_of_days(self):
         """ Number of days in the calendar year containing this date instance.
         """
         diff = self.year_end_date - self.year_start_date
         return diff.days + 1
+
+    @property
+    def quarter_num_of_days(self):
+        """ Number of days in the calendar quarter containing this date instance.
+        """
+        diff = self.quarter_end_date - self.quarter_start_date
+        return diff.days + 1
+
+    #################################
+    # String format properties
+    #################################
 
     @property
     def year_string(self):
@@ -81,6 +112,22 @@ class BaseDate(object):
         start_string = self.year_start_date.strftime("%d-%b-%Y")
         end_string = self.year_end_date.strftime("%d-%b-%Y")
         return "%d (%s - %s)" % (self.year, start_string, end_string)
+
+    @property
+    def quarter_string(self):
+        """ Quarter string.
+        E.g.: Quarter 3
+        """
+        return "Quarter " + str(self.quarter)
+
+    @property
+    def quarter_dates_string(self):
+        """ Quarter string with formatted starting and ending dates.
+        E.g.: 2016 (26-JUL-2015 - 30-JUL-2016)
+        """
+        start_string = self.quarter_start_date.strftime("%d-%b-%Y")
+        end_string = self.quarter_end_date.strftime("%d-%b-%Y")
+        return "%d (%s - %s)" % (self.quarter, start_string, end_string)
 
 
 class RegularDate(BaseDate):
