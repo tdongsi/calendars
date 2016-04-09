@@ -22,6 +22,25 @@ class RetailDateTest(unittest.TestCase):
         self.assertEqual(my_date.year_string, "2015 - 2016")
 
 
+class RetailQuarterStartEnd(unittest.TestCase):
+    """
+    Verify quarter_start_date and quarter_end_date properties of RetailDate.
+    """
+
+    def _verify_retail_quarter(self, input_date, expected_quarter_start, expected_quarter_end):
+        my_date = RetailDate(input_date)
+        self.assertEqual(my_date.quarter_start_date, expected_quarter_start)
+        self.assertEqual(my_date.quarter_end_date, expected_quarter_end)
+        pass
+
+    def test_year_2004(self):
+
+        self._verify_retail_quarter(date(2003, 7, 27), date(2003, 7, 27), date(2003, 10, 25))
+        self._verify_retail_quarter(date(2003, 11, 2), date(2003, 10, 26), date(2004, 1, 24))
+        self._verify_retail_quarter(date(2004, 2, 1), date(2004, 1, 25), date(2004, 4, 24))
+        self._verify_retail_quarter(date(2004, 5, 2), date(2004, 4, 25), date(2004, 7, 31))
+
+
 class RetailYearStartEnd(unittest.TestCase):
     """Test RetailDate.year_start_date and RetailDate.year_end_date properties.
 

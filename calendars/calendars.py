@@ -17,6 +17,18 @@ https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
 from datetime import date, timedelta
 
 
+def cumsum(alist):
+    """ A generator that return a cumulative running sum of elements in a list.
+
+    :param alist: list of numeric.
+    :yield: the current running sum.
+    """
+    tot = 0
+    for e in alist:
+        tot += e
+        yield tot
+
+
 class CalendarImplError(Exception):
     """ Raise this error when a property in the base class, e.g. BaseDate, is not overridden or implemented.
     """
@@ -386,7 +398,10 @@ class RetailDate(BaseDate):
     FISCAL_START_MONTH = 8
     FISCAL_START_DAY = 1
     # Weeks in each month: Grouping of 13 weeks in a quarter can be 5-4-4 or 4-4-5.
-    WEEKS_IN_MONTH = (5, 4, 4)
+    WEEKS_IN_MONTH = [5, 4, 4]*4
+
+    # In the case of 53-week, the extra week is put in the last month. In this case, last quarter is (5, 4, 5)
+    LEAP_MONTH = 12
 
     def __init__(self, mdate, today=None):
         """ Initialize a date in retail calendar with the given datetime.date object.
@@ -403,6 +418,17 @@ class RetailDate(BaseDate):
             self._today = today
 
         self.year_start, self.year_end = RetailDate.get_retail_start_end(self._date)
+
+        self.is_53_week = True if self.year_num_of_days == 53 * 7 else False
+        # Create an instance copy
+        self._weeks_in_month = self.WEEKS_IN_MONTH[:]
+        if self.is_53_week:
+            self._weeks_in_month[self.LEAP_MONTH-1] = 5
+
+        self.weeks_in_quarter = [sum(self._weeks_in_month[0:3]),
+                            sum(self._weeks_in_month[3:6]),
+                            sum(self._weeks_in_month[6:9]),
+                            sum(self._weeks_in_month[9:12])]
         pass
 
     @staticmethod
@@ -481,6 +507,43 @@ class RetailDate(BaseDate):
         """
         _, today_year_end = self.get_retail_start_end(self._today)
         return True if (today_year_end.year - 1 == self.year) else False
+
+    @property
+    def quarter(self):
+        """ Find the retail quarter number for the given date.
+
+        Quarter is based on month (every three months), which is one-based in self._date.
+        :return: Quarter number for the input date.
+        """
+        num_days = self._date - self.year_start_date
+        week_num = num_days / 7 + 1
+
+        week_cumsum = [0]
+        week_cumsum.extend(cumsum(self.weeks_in_quarter))
+        count = 0
+        for count in xrange(1, len(week_cumsum)):
+            if week_cumsum[count-1] <= week_num < week_cumsum[count]:
+                break
+        return count + 1
+
+    @property
+    def quarter_start_date(self):
+        """ Find the starting date of the quarter that contains the given date.
+        """
+        # Find the running total of weeks per quarter
+        week_cumsum = [0]
+        week_cumsum.extend(cumsum(self.weeks_in_quarter))
+        start_date = self.year_start_date + timedelta(week_cumsum[self.quarter-1]*7)
+        return start_date
+
+    @property
+    def quarter_end_date(self):
+        """ Find the ending date of the quarter that contains the given date.
+        """
+        # Find the running total of weeks per quarter
+        week_cumsum = cumsum(self.weeks_in_quarter)
+        end_date = self.year_start_date + timedelta(week_cumsum[self.quarter-1]*7-1)
+        return end_date
 
     #################################
     # String format properties
