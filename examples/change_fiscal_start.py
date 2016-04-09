@@ -11,7 +11,7 @@ def main():
 
     # Another company may have another fiscal date.
     # Change fiscal date to September 1st.
-    FiscalDate.FISCAL_START_MONTH = 9
+    FiscalDate._FISCAL_START_MONTH = 9
     second_fd = FiscalDate(date(2016, 8, 15))
     print second_fd.year
     print first_fd.year

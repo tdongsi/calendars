@@ -243,10 +243,17 @@ class FiscalDate(BaseDate):
     """
     This utility class converts a given datetime.date instance into a FISCAL calendar's date instance with
     different pre-computed attributes of interest such as quarter starting date, week starting date for that date, etc.
+
+    To use for another fiscal calendar (e.g., different fiscal month), it is user's responsibility to update all
+    internal class constants properly before creating FiscalDate instances:
+
+    _FISCAL_START_MONTH
+    _FISCAL_START_DAY
+    _QUARTER_NUM_TO_DATE
     """
     # Each fiscal year starts on August 1st.
-    FISCAL_START_MONTH = 8
-    FISCAL_START_DAY = 1
+    _FISCAL_START_MONTH = 8
+    _FISCAL_START_DAY = 1
 
     # quarter's starting and ending dates
     # It is easier and less error-prone to edit this constant than write code
@@ -279,12 +286,12 @@ class FiscalDate(BaseDate):
         :param mdate: the given date.
         :return:
         """
-        if mdate < date(mdate.year, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY):
-            year_start = date(mdate.year - 1, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY)
-            year_end = date(mdate.year, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY) - timedelta(1)
+        if mdate < date(mdate.year, FiscalDate._FISCAL_START_MONTH, FiscalDate._FISCAL_START_DAY):
+            year_start = date(mdate.year - 1, FiscalDate._FISCAL_START_MONTH, FiscalDate._FISCAL_START_DAY)
+            year_end = date(mdate.year, FiscalDate._FISCAL_START_MONTH, FiscalDate._FISCAL_START_DAY) - timedelta(1)
         else:
-            year_start = date(mdate.year, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY)
-            year_end = date(mdate.year + 1, FiscalDate.FISCAL_START_MONTH, FiscalDate.FISCAL_START_DAY) - timedelta(1)
+            year_start = date(mdate.year, FiscalDate._FISCAL_START_MONTH, FiscalDate._FISCAL_START_DAY)
+            year_end = date(mdate.year + 1, FiscalDate._FISCAL_START_MONTH, FiscalDate._FISCAL_START_DAY) - timedelta(1)
         return year_start, year_end
 
     @property
@@ -330,11 +337,11 @@ class FiscalDate(BaseDate):
         :return: Quarter number for the input date.
         """
         if self._date.year == self.year - 1:
-            zero_based_month = self._date.month - self.FISCAL_START_MONTH
+            zero_based_month = self._date.month - self._FISCAL_START_MONTH
             quarter_num = zero_based_month / 3 + 1
             return quarter_num
         else:
-            zero_based_month = self._date.month + 12 - self.FISCAL_START_MONTH
+            zero_based_month = self._date.month + 12 - self._FISCAL_START_MONTH
             quarter_num = zero_based_month / 3 + 1
             return quarter_num
 
@@ -343,7 +350,7 @@ class FiscalDate(BaseDate):
         """ Find the starting date of the quarter that contains the given date.
         """
         # Make sure the starting date of the first quarter is as defined.
-        assert self._QUARTER_NUM_TO_DATE[1][0] == (self.FISCAL_START_MONTH, self.FISCAL_START_DAY)
+        assert self._QUARTER_NUM_TO_DATE[1][0] == (self._FISCAL_START_MONTH, self._FISCAL_START_DAY)
 
         start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
         start_year = self.year if self.quarter > 2 else self.year-1
@@ -354,7 +361,7 @@ class FiscalDate(BaseDate):
         """ Find the ending date of the quarter that contains the given date.
         """
         # Make sure the starting date of the first quarter is as defined.
-        assert self._QUARTER_NUM_TO_DATE[1][0] == (self.FISCAL_START_MONTH, self.FISCAL_START_DAY)
+        assert self._QUARTER_NUM_TO_DATE[1][0] == (self._FISCAL_START_MONTH, self._FISCAL_START_DAY)
 
         end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
         end_year = self.year if self.quarter > 1 else self.year-1
