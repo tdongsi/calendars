@@ -5,10 +5,12 @@ Utility classes for the following calendars with tests:
 1. Regular solar calendar
 2. Fiscal calendar, based on class constant FISCAL_START.
 3. [Retail calendar](https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar), based on class constant FISCAL_START.
+4. [ISO calendar](http://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm), based on Python's `datetime` module.
+5. [Lunisolar calendar](https://en.wikipedia.org/wiki/Lunar_calendar), based on [PyCalCal](http://enrico.spinielli.net/pycalcal/) [module](https://github.com/espinielli/pycalcal).
 
 Using these utility classes, one can quickly determine, for example, week or month number of a given date with respect
-to the fiscal or retail calendar.
-This module can be helpful since most planning in businesses (small or large) is based on fiscal or retail calendars.
+to a fiscal or retail calendar.
+This module can be helpful since planning in businesses (small or large) is mostly based on fiscal or retail calendars.
 
 ## Additional information
 
