@@ -79,13 +79,13 @@ class LunarDateTest(unittest.TestCase):
 
     def test_quarter(self):
         my_date = LunarDate(date(2016, 4, 8))
-        self.assertEqual(my_date.quarter, 2)
+        self.assertEqual(my_date.quarter, 1)
         self.assertEqual(my_date.quarter_start_date, date(2016, 4, 1))
         self.assertEqual(my_date.quarter_end_date, date(2016, 6, 30))
 
     def test_string_output(self):
         my_date = LunarDate(date(2015, 12, 31))
-        self.assertEqual(my_date.year_dates_string, "2015 (01-Jan-2015 - 31-Dec-2015)")
-        self.assertEqual(my_date.year_string, "2015 - 2015")
+        self.assertEqual(my_date.year_dates_string, "2015 (19-Feb-2015 - 07-Feb-2016)")
+        self.assertEqual(my_date.year_string, "2015 - 2016")
 
     pass

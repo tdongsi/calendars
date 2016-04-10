@@ -15,6 +15,7 @@ https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
 """
 
 from datetime import date, timedelta
+import pycalcal.pycalcal as pycal
 
 
 def cumsum(alist):
@@ -718,14 +719,33 @@ class LunarDate(BaseDate):
             # Useful when verifying functionality when running on a particular date.
             self._today = today
 
-        self.year_start = date(self._date.year, 1, 1)
-        self.year_end = date(self._date.year, 12, 31)
+        fixed_date = pycal.fixed_from_gregorian((self._date.year, self._date.month, self._date.day))
+        self._chinese_date = pycal.chinese_from_fixed(fixed_date)
+        cycle, year, month, leap_month, day = self._chinese_date
+        # This Chinese year 0 starts from 2697 BC (Yellow King legend).
+        # We don't want that extra 2697 to keep lunar year number close to solar year number.
+        self._year = cycle*60 + year - 2697
+        self._month = month
+        self._day = day
+
+        # chinese_new_year_on_or_before does not work
+        self.year_start = self.regular_from_lunar((cycle, year, 1, leap_month, 1))
+        self.year_end = self.regular_from_lunar((cycle, year+1, 1, leap_month, 1)) - timedelta(1)
+
+    def regular_from_lunar(self, cdate):
+        """ Get regular date from lunar date.
+
+        :param cdate: a tuple of format (cycle, offset, month, leap, day) defined by PyCalCal.
+        :return: corresponding date in regular Gregorian calendar.
+        """
+        rdate = pycal.gregorian_from_fixed(pycal.fixed_from_chinese(cdate))
+        return date(*rdate)
 
     @property
     def year(self):
         """ Return the calendar year of the given date.
         """
-        return self._date.year
+        return self._year
 
     @property
     def year_start_date(self):
@@ -758,7 +778,7 @@ class LunarDate(BaseDate):
         Quarter is based on month (every three months), which is one-based in self._date.
         :return: Quarter number for the input date.
         """
-        zero_based_month = self._date.month - 1
+        zero_based_month = self._month - 1
         quarter_num = zero_based_month / 3 + 1
         return quarter_num
 
