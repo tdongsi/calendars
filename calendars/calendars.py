@@ -719,18 +719,38 @@ class LunarDate(BaseDate):
             # Useful when verifying functionality when running on a particular date.
             self._today = today
 
+        self._chinese_date = self.lunar_from_regular(self._date)
         fixed_date = pycal.fixed_from_gregorian((self._date.year, self._date.month, self._date.day))
         self._chinese_date = pycal.chinese_from_fixed(fixed_date)
         cycle, year, month, leap_month, day = self._chinese_date
-        # This Chinese year 0 starts from 2697 BC (Yellow King legend).
-        # We don't want that extra 2697 to keep lunar year number close to solar year number.
-        self._year = cycle*60 + year - 2697
+        self._year = self.normalize_lunar_year(cycle, year)
         self._month = month
         self._day = day
 
         # chinese_new_year_on_or_before does not work
         self.year_start = self.regular_from_lunar((cycle, year, 1, leap_month, 1))
         self.year_end = self.regular_from_lunar((cycle, year+1, 1, leap_month, 1)) - timedelta(1)
+
+    def normalize_lunar_year(self, cycle, year):
+        """ Normalize lunar year to make it close to solar year number.
+
+        The Chinese year 0 starts from 2697 BC (Yellow King legend).
+        We don't want that extra 2697 to keep lunar year number close to solar year number.
+        :param cycle:
+        :param year:
+        :return:
+        """
+        return cycle * 60 + year - 2697
+
+    def lunar_from_regular(self, rdate):
+        """Get lunar date from regular date.
+
+        :param rdate: Python datetime module's date class.
+        :return: cdate: a tuple of format (cycle, offset, month, leap, day) defined by PyCalCal.
+        """
+        fixed_date = pycal.fixed_from_gregorian((rdate.year, rdate.month, rdate.day))
+        chinese_date = pycal.chinese_from_fixed(fixed_date)
+        return chinese_date
 
     def regular_from_lunar(self, cdate):
         """ Get regular date from lunar date.
@@ -763,13 +783,17 @@ class LunarDate(BaseDate):
     def is_current_year(self):
         """ Is this instance in the current calendar year, if today is as given?
         """
-        return True if (self._today.year == self.year) else False
+        cycle, year, _, _, _ = self.lunar_from_regular(self._today)
+        today_year = self.normalize_lunar_year(cycle, year)
+        return True if (today_year == self.year) else False
 
     @property
     def is_previous_year(self):
         """ Is the given date in the previous calendar year, if today is as given?
         """
-        return True if (self._today.year - 1 == self.year) else False
+        cycle, year, _, _, _ = self.lunar_from_regular(self._today)
+        today_year = self.normalize_lunar_year(cycle, year)
+        return True if (today_year - 1 == self.year) else False
 
     @property
     def quarter(self):

@@ -25,8 +25,8 @@ class IsCurrentYearTest(unittest.TestCase):
         """Pretend today as different dates in year 2018.
         """
         todays = [date(2018, 6, 15),
-                  date(2018, 1, 1),
-                  date(2018, 12, 31)
+                  date(2018, 2, 16),
+                  date(2019, 2, 4)
                   ]
 
         for today in todays:
@@ -38,6 +38,10 @@ class IsCurrentYearTest(unittest.TestCase):
         """
 
         input_date = LunarDate(date(2018, 1, 1), today)
+        self._verify_current_calendar_year(input_date, False, True)
+        input_date = LunarDate(date(2018, 2, 15), today)
+        self._verify_current_calendar_year(input_date, False, True)
+        input_date = LunarDate(date(2018, 2, 16), today)
         self._verify_current_calendar_year(input_date, True, False)
 
         input_date = LunarDate(date(2018, 12, 31), today)
@@ -47,7 +51,7 @@ class IsCurrentYearTest(unittest.TestCase):
         self._verify_current_calendar_year(input_date, True, False)
 
         input_date = LunarDate(date(2017, 1, 1), today)
-        self._verify_current_calendar_year(input_date, False, True)
+        self._verify_current_calendar_year(input_date, False, False)
 
         input_date = LunarDate(date(2017, 12, 31), today)
         self._verify_current_calendar_year(input_date, False, True)
@@ -56,7 +60,14 @@ class IsCurrentYearTest(unittest.TestCase):
         self._verify_current_calendar_year(input_date, False, True)
 
         input_date = LunarDate(date(2019, 1, 1), today)
-        self._verify_current_calendar_year(input_date)
+        self._verify_current_calendar_year(input_date, True, False)
+        input_date = LunarDate(date(2019, 1, 3), today)
+        self._verify_current_calendar_year(input_date, True, False)
+        input_date = LunarDate(date(2019, 2, 4), today)
+        self._verify_current_calendar_year(input_date, True, False)
+        input_date = LunarDate(date(2019, 2, 5), today)
+        self._verify_current_calendar_year(input_date, False, False)
+
         input_date = LunarDate(date(2019, 12, 31), today)
         self._verify_current_calendar_year(input_date, False, False)
         input_date = LunarDate(date(2016, 1, 1), today)
