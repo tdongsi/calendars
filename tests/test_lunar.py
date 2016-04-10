@@ -89,10 +89,17 @@ class LunarDateTest(unittest.TestCase):
     """
 
     def test_quarter(self):
+        # Test case based on this:
+        # https://s-media-cache-ak0.pinimg.com/736x/9b/5b/69/9b5b69fb9df56510a4b0a9ea488be305.jpg
         my_date = LunarDate(date(2016, 4, 8))
         self.assertEqual(my_date.quarter, 1)
-        self.assertEqual(my_date.quarter_start_date, date(2016, 4, 1))
-        self.assertEqual(my_date.quarter_end_date, date(2016, 6, 30))
+        self.assertEqual(my_date.quarter_start_date, date(2016, 2, 8))
+        self.assertEqual(my_date.quarter_end_date, date(2016, 5, 6))
+
+        my_date = LunarDate(date(2016, 2, 1))
+        self.assertEqual(my_date.quarter, 4)
+        self.assertEqual(my_date.quarter_start_date, date(2015, 11, 12))
+        self.assertEqual(my_date.quarter_end_date, date(2016, 2, 7))
 
     def test_string_output(self):
         my_date = LunarDate(date(2015, 12, 31))

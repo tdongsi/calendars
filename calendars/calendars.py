@@ -699,12 +699,6 @@ class LunarDate(BaseDate):
     different pre-computed attributes of interest such as quarter starting date for that date, etc.
     """
 
-    # quarter's starting and ending dates
-    _QUARTER_NUM_TO_DATE = { 1: ((1, 1), (3, 31)),
-                             2: ((4, 1), (6, 30)),
-                             3: ((7, 1), (9, 30)),
-                             4: ((10, 1), (12, 31))}
-
     def __init__(self, mdate, today=None):
         """ Initialize a date in lunar calendar with the given datetime.date object.
 
@@ -728,8 +722,8 @@ class LunarDate(BaseDate):
         self._day = day
 
         # chinese_new_year_on_or_before does not work
-        self.year_start = self.regular_from_lunar((cycle, year, 1, leap_month, 1))
-        self.year_end = self.regular_from_lunar((cycle, year+1, 1, leap_month, 1)) - timedelta(1)
+        self._year_start = self.regular_from_lunar((cycle, year, 1, leap_month, 1))
+        self._year_end = self.regular_from_lunar((cycle, year + 1, 1, leap_month, 1)) - timedelta(1)
 
     def normalize_lunar_year(self, cycle, year):
         """ Normalize lunar year to make it close to solar year number.
@@ -771,13 +765,13 @@ class LunarDate(BaseDate):
     def year_start_date(self):
         """ Start date of the calendar year containing this date instance.
         """
-        return self.year_start
+        return self._year_start
 
     @property
     def year_end_date(self):
         """ End date of the calendar year containing this date instance.
         """
-        return self.year_end
+        return self._year_end
 
     @property
     def is_current_year(self):
@@ -810,15 +804,24 @@ class LunarDate(BaseDate):
     def quarter_start_date(self):
         """ Find the starting date of the quarter that contains the given date.
         """
-        start_date = self._QUARTER_NUM_TO_DATE[self.quarter][0]
-        return date(self.year, *start_date)
+        cycle, year, _, leap_month, _ = self._chinese_date
+        month = self.quarter * 3 - 2
+        # Find first day of month 1, 4, 7, 10 for quarters.
+        quarter_start = self.regular_from_lunar((cycle, year, month, leap_month, 1))
+        return quarter_start
 
     @property
     def quarter_end_date(self):
         """ Find the ending date of the quarter that contains the given date.
         """
-        end_date = self._QUARTER_NUM_TO_DATE[self.quarter][1]
-        return date(self.year, *end_date)
+        if self.quarter == 4:
+            return self.year_end_date
+
+        cycle, year, _, leap_month, _ = self._chinese_date
+        month = self.quarter * 3 + 1
+        # Find first day of the next quarter: month 4, 7, 10 for quarters.
+        quarter_end = self.regular_from_lunar((cycle, year, month, leap_month, 1))
+        return quarter_end - timedelta(1)
 
     #################################
     # String format properties
