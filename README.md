@@ -16,11 +16,12 @@ This module can be helpful since planning in businesses (small or large) is most
 
 There are surprisingly many types of calendar. Some of them are:
 
-1. **Regular Calendar**: regular solar calendar date range as we know. 
+1. **Regular (Gregorian) Calendar**: regular solar calendar date range as we know. 
    * Example: January 01, 2006 to December 31, 2006.
 1. [**Lunar Calendar**](https://en.wikipedia.org/wiki/Lunar_calendar): based on cycles of the lunar phases.
    * Example: January 29, 2006 to February 17, 2007.
-   * A lunar year is defined as 12 lunations, which is about 354 days.
+   * A lunar year is defined as 12 lunations (months), which is about 354 days.
+   * Each month is either 29 or 30 days long. The length of each month changes from year to year, unlike the Gregorian calendar.
    * In every two or three years, a [thirteenth-month](https://en.wikipedia.org/wiki/Lunisolar_calendar) (intercalary month or leap month) is added to bring the calendar year into synchronisation with the solar year.
 2. **Fiscal Calendar**: a company’s selected calendar date range for required SEC financial statement filing.
    * Example: August 01, 2005 to July 31, 2006 is my company's fiscal year 2006.
