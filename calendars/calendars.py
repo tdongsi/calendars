@@ -15,6 +15,7 @@ https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
 """
 
 from datetime import date, timedelta
+import pycalcal.pycalcal as pycal
 
 
 def cumsum(alist):
@@ -688,5 +689,142 @@ class IsoDate(BaseDate):
         For ISO calendar, just like regular calendar, override base implementation to print one year.
         """
         return str(self.year)
+
+    pass
+
+
+class LunarDate(BaseDate):
+    """
+    This utility class converts a given datetime.date instance into a LUNAR calendar's date instance with
+    different pre-computed attributes of interest such as quarter starting date for that date, etc.
+    """
+
+    def __init__(self, mdate, today=None):
+        """ Initialize a date in lunar calendar with the given datetime.date object.
+
+        :param mdate: the given datetime.date object.
+        :param today: default is the current date (today), if not specified.
+        :return:
+        """
+        self._date = mdate
+        if not today:
+            self._today = date.today()
+        else:
+            # Useful when verifying functionality when running on a particular date.
+            self._today = today
+
+        self._chinese_date = self.lunar_from_regular(self._date)
+        fixed_date = pycal.fixed_from_gregorian((self._date.year, self._date.month, self._date.day))
+        self._chinese_date = pycal.chinese_from_fixed(fixed_date)
+        cycle, year, month, leap_month, day = self._chinese_date
+        self._year = self.normalize_lunar_year(cycle, year)
+        self._month = month
+        self._day = day
+
+        # chinese_new_year_on_or_before does not work
+        self._year_start = self.regular_from_lunar((cycle, year, 1, leap_month, 1))
+        self._year_end = self.regular_from_lunar((cycle, year + 1, 1, leap_month, 1)) - timedelta(1)
+
+    def normalize_lunar_year(self, cycle, year):
+        """ Normalize lunar year to make it close to solar year number.
+
+        The Chinese year 0 starts from 2697 BC (Yellow King legend).
+        We don't want that extra 2697 to keep lunar year number close to solar year number.
+        :param cycle:
+        :param year:
+        :return:
+        """
+        return cycle * 60 + year - 2697
+
+    def lunar_from_regular(self, rdate):
+        """Get lunar date from regular date.
+
+        :param rdate: Python datetime module's date class.
+        :return: cdate: a tuple of format (cycle, offset, month, leap, day) defined by PyCalCal.
+        """
+        fixed_date = pycal.fixed_from_gregorian((rdate.year, rdate.month, rdate.day))
+        chinese_date = pycal.chinese_from_fixed(fixed_date)
+        return chinese_date
+
+    def regular_from_lunar(self, cdate):
+        """ Get regular date from lunar date.
+
+        :param cdate: a tuple of format (cycle, offset, month, leap, day) defined by PyCalCal.
+        :return: corresponding date in regular Gregorian calendar.
+        """
+        rdate = pycal.gregorian_from_fixed(pycal.fixed_from_chinese(cdate))
+        return date(*rdate)
+
+    @property
+    def year(self):
+        """ Return the calendar year of the given date.
+        """
+        return self._year
+
+    @property
+    def year_start_date(self):
+        """ Start date of the calendar year containing this date instance.
+        """
+        return self._year_start
+
+    @property
+    def year_end_date(self):
+        """ End date of the calendar year containing this date instance.
+        """
+        return self._year_end
+
+    @property
+    def is_current_year(self):
+        """ Is this instance in the current calendar year, if today is as given?
+        """
+        cycle, year, _, _, _ = self.lunar_from_regular(self._today)
+        today_year = self.normalize_lunar_year(cycle, year)
+        return True if (today_year == self.year) else False
+
+    @property
+    def is_previous_year(self):
+        """ Is the given date in the previous calendar year, if today is as given?
+        """
+        cycle, year, _, _, _ = self.lunar_from_regular(self._today)
+        today_year = self.normalize_lunar_year(cycle, year)
+        return True if (today_year - 1 == self.year) else False
+
+    @property
+    def quarter(self):
+        """ Find the quarter number for the given date.
+
+        Quarter is based on month (every three months), which is one-based in self._date.
+        :return: Quarter number for the input date.
+        """
+        zero_based_month = self._month - 1
+        quarter_num = zero_based_month / 3 + 1
+        return quarter_num
+
+    @property
+    def quarter_start_date(self):
+        """ Find the starting date of the quarter that contains the given date.
+        """
+        cycle, year, _, leap_month, _ = self._chinese_date
+        month = self.quarter * 3 - 2
+        # Find first day of month 1, 4, 7, 10 for quarters.
+        quarter_start = self.regular_from_lunar((cycle, year, month, leap_month, 1))
+        return quarter_start
+
+    @property
+    def quarter_end_date(self):
+        """ Find the ending date of the quarter that contains the given date.
+        """
+        if self.quarter == 4:
+            return self.year_end_date
+
+        cycle, year, _, leap_month, _ = self._chinese_date
+        month = self.quarter * 3 + 1
+        # Find first day of the next quarter: month 4, 7, 10 for quarters.
+        quarter_end = self.regular_from_lunar((cycle, year, month, leap_month, 1))
+        return quarter_end - timedelta(1)
+
+    #################################
+    # String format properties
+    #################################
 
     pass
